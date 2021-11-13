@@ -1,0 +1,100 @@
+<!Doctype html>
+<html lang="ko" xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" href="/static/images/favicon.png">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous">
+
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+
+    <!-- 구글폰트 -->
+    <link href="https://fonts.googleapis.com/css?family=Stylish&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+
+    <title>내배캠 | 질문합시다2</title>
+
+    <!-- style -->
+    <style type="text/css">
+        * {
+            font-family: "Stylish", sans-serif;
+        }
+
+        .comment {
+            color: blue;
+            font-weight: bold;
+        }
+
+        .wrap {
+            width: 1200px;
+            margin: auto;
+        }
+
+        #post-box {
+            width: 500px;
+            margin: 20px auto;
+            padding: 50px;
+            border: black solid;
+            border-radius: 5px;
+        }
+    </style>
+    <script>
+        function writeAticle() {
+            $.ajax({
+                type: "POST",
+                url: "/article",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({content: $("#content").val()}),
+                success: function (response) {
+                    $("#content").val('');
+                    if(confirm("저장된 메시지를 확인하시겠어요?")) {
+                        readAticle(response['id'])
+                    }
+                }
+            })
+        }
+
+        function readAticle(id) {
+            $.ajax({
+                type: "GET",
+                url: `/article/${id}`,
+                success: function (response) {
+                    console.log(response['content']);
+                    $("#acticle").html(response['content']);
+                }
+            })
+        }
+    </script>
+
+</head>
+
+<body>
+<div class="wrap">
+    <div class="jumbotron">
+        <h1 class="display-4">Hello, weekly Test</h1>
+        <p class="lead">이번주 문제는 매우 쉬워요!!</p>
+        <hr class="my-4">
+        <p id="acticle"></p>
+    </div>
+    <div class="form-group">
+        <label for="content">짧은 글 저장</label>
+        <textarea class="form-control" id="content" rows="3"></textarea>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="writeAticle()">Primary</button>
+</div>
+</body>
+
+</html>

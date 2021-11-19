@@ -1,0 +1,122 @@
+<!Doctype html>
+<html lang="ko" xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" href="/static/images/favicon.png">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+          crossorigin="anonymous">
+
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+
+    <!-- 구글폰트 -->
+    <link href="https://fonts.googleapis.com/css?family=Stylish&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+
+    <title>내배캠 | 타임어택</title>
+
+    <!-- style -->
+    <style type="text/css">
+        * {
+            font-family: "Stylish", sans-serif;
+        }
+
+        .comment {
+            color: blue;
+            font-weight: bold;
+        }
+
+        .wrap {
+            width: 1200px;
+            margin: auto;
+        }
+    </style>
+    <script>
+        let idx = '';
+        $(document).ready(function () {
+            idx = getParam('idx');
+            getArticle(idx);
+        });
+
+        function getParam(name) {
+            var results = new RegExp('[\?&amp;]' + name + '=([^&amp;#]*)').exec(window.location.href);
+            return results[1] || 0;
+        }
+
+        function getArticle() {
+            $.ajax({
+                type: "GET",
+                url: `/article/${idx}`,
+                success: function (response) {
+                    $("#title").html(response['title']);
+                    $("#content").html(response['content']);
+                    $("#comment-list").empty();
+                    for (let i = 0; i < response['comments'].length; i++) {
+                        makeListComment(response['comments'][i])
+                    }
+                }
+            })
+        }
+
+        function setArticleComment() {
+            let comment = {
+                "idx":idx,
+                "comment":$("#comment").val()
+            }
+            $.ajax({
+                type: "POST",
+                url: `/article/comment`,
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(comment),
+                success: function (response) {
+                    alert("댓글이 작성되었습니다!!");
+                    getArticle();
+                }
+            })
+        }
+
+        function makeListComment(comment) {
+            let tempHtml = `<li class="list-group-item">${comment['comment']}</li>`;
+            $("#comment-list").append(tempHtml);
+        }
+    </script>
+
+</head>
+
+<body>
+<div class="wrap">
+    <div class="jumbotron">
+        <h1 class="display-4">질문합시다!!</h1>
+        <hr class="my-4">
+    </div>
+    <div class="form-group">
+        <label for="title">제목</label>
+        <div id="title"></div>
+    </div>
+    <div class="form-group">
+        <label for="content">간단한 내용</label>
+        <div id="content"></div>
+    </div>
+    <hr/>
+    <textarea class="form-control" id="comment" rows="3"></textarea>
+    <button type="button" class="btn btn-primary" onclick="setArticleComment()">댓글작성</button>
+    <button type="button" class="btn btn-primary" onclick="location.href='/'">목록으로</button>
+    <hr/>
+    <ul class="list-group" id="comment-list">
+    </ul>
+</div>
+</body>
+
+</html>

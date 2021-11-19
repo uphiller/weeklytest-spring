@@ -1,7 +1,7 @@
-<!Doctype html>
-<html lang="ko" xmlns="http://www.w3.org/1999/html">
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -25,9 +25,7 @@
     <link href="https://fonts.googleapis.com/css?family=Stylish&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
 
-    <title>내배캠 | 질문합시다2</title>
-
-    <!-- style -->
+    <title>내배캠 | 타임어택</title>
     <style type="text/css">
         * {
             font-family: "Stylish", sans-serif;
@@ -52,49 +50,102 @@
         }
     </style>
     <script>
-        function writeAticle() {
+        $(document).ready(function () {
+            getArticles();
+        });
+
+        function openClose() {
+            if ($("#post-box").css("display") == "block") {
+                $("#post-box").hide();
+                $("#btn-post-box").text("포스팅 박스 열기");
+            } else {
+                $("#post-url").val('');
+                $("#post-comment").val('');
+                $("#post-box").show();
+                $("#btn-post-box").text("포스팅 박스 닫기");
+            }
+        }
+
+        function postingArticle() {
+            let article = {
+                "title": $("#title").val(),
+                "content": $("#content").val()
+            }
+
             $.ajax({
                 type: "POST",
                 url: "/article",
                 contentType: 'application/json; charset=utf-8',
-                data: JSON.stringify({content: $("#content").val()}),
+                data: JSON.stringify(article),
                 success: function (response) {
-                    $("#content").val('');
-                    if(confirm("저장된 메시지를 확인하시겠어요?")) {
-                        readAticle(response['id'])
+                    alert("포스팅 업데이트 성공!");
+                    window.location.reload();
+                }
+            })
+        }
+
+        function getArticles() {
+            $.ajax({
+                type: "GET",
+                url: "/articles",
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    for (let i = 0; i < response.length; i++) {
+                        num = response.length - i;
+                        makeListPost(response[i], num);
                     }
                 }
             })
         }
 
-        function readAticle(id) {
-            $.ajax({
-                type: "GET",
-                url: `/article/${id}`,
-                success: function (response) {
-                    console.log(response['content']);
-                    $("#acticle").html(response['content']);
-                }
-            })
+        function makeListPost(article, index) {
+            let tempHtml = ` <tr>
+                      <th scope="row">${index}</th>
+                      <td><a href="/view?idx=${article['idx']}">${article['title']}</td>
+                      <td>${article['comments'].length}</td>
+                      <td>${article['createdAt']}</td>
+                      </tr>
+                    `;
+            $("#list-post").append(tempHtml);
         }
     </script>
-
 </head>
-
 <body>
 <div class="wrap">
     <div class="jumbotron">
-        <h1 class="display-4">Hello, weekly Test</h1>
-        <p class="lead">이번주 문제는 매우 쉬워요!!</p>
+        <h1 class="display-4">질문합시다!!</h1>
         <hr class="my-4">
-        <p id="acticle"></p>
+        <p class="lead">
+            <button onclick="openClose()" id="btn-post-box" type="button" class="btn btn-primary">포스팅 박스 열기</button>
+        </p>
     </div>
-    <div class="form-group">
-        <label for="content">짧은 글 저장</label>
-        <textarea class="form-control" id="content" rows="3"></textarea>
+    <div id="post-box" class="form-post" style="display:none">
+        <div>
+            <div class="form-group">
+                <label for="title">제목</label>
+                <input id="title" class="form-control" placeholder="">
+            </div>
+            <div class="form-group">
+                <label for="content">간단한 내용</label>
+                <textarea id="content" class="form-control" rows="2"></textarea>
+            </div>
+            <input id="content" class="form-control" placeholder="" hidden>
+            <button type="button" class="btn btn-primary" onclick="postingArticle()">기사저장</button>
+        </div>
     </div>
-    <button type="button" class="btn btn-primary" onclick="writeAticle()">Primary</button>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">제목</th>
+            <th scope="col">댓글수</th>
+            <th scope="col">등록일자</th>
+        </tr>
+        </thead>
+        <tbody id="list-post">
+        </tbody>
+    </table>
 </div>
-</body>
 
+</body>
 </html>

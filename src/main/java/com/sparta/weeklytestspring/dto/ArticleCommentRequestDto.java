@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class ArticleRequestDto {
-    private String title;
-    private String content;
+public class ArticleCommentRequestDto {
+    private Long idx;
+    private String comment;
 }

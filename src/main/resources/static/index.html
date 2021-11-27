@@ -24,16 +24,13 @@
     <!-- 구글폰트 -->
     <link href="https://fonts.googleapis.com/css?family=Stylish&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <link rel="stylesheet" href="bootstrap-tagsinput.css">
+    <script src="bootstrap-tagsinput.js"></script>
 
     <title>내배캠 | 타임어택</title>
     <style type="text/css">
         * {
             font-family: "Stylish", sans-serif;
-        }
-
-        .comment {
-            color: blue;
-            font-weight: bold;
         }
 
         .wrap {
@@ -69,7 +66,8 @@
         function postingArticle() {
             let article = {
                 "title": $("#title").val(),
-                "content": $("#content").val()
+                "content": $("#content").val(),
+                "tags": $("#tags").val()
             }
 
             $.ajax({
@@ -85,11 +83,13 @@
         }
 
         function getArticles() {
+            let tag = $("#searchTag").val();
             $.ajax({
                 type: "GET",
-                url: "/articles",
+                url: `/articles?searchTag=${tag}`,
                 contentType: 'application/json; charset=utf-8',
                 success: function (response) {
+                    $("#list-post").empty();
                     for (let i = 0; i < response.length; i++) {
                         num = response.length - i;
                         makeListPost(response[i], num);
@@ -99,10 +99,17 @@
         }
 
         function makeListPost(article, index) {
+            let tags = '';
+            for(let i = 0 ;  i < article['tags'].length ; i++){
+                console.log(article['tags'][i]);
+                tags += " #"+ article['tags'][i]['name'];
+            }
+
             let tempHtml = ` <tr>
                       <th scope="row">${index}</th>
                       <td><a href="/view?idx=${article['idx']}">${article['title']}</td>
                       <td>${article['comments'].length}</td>
+                      <td>${tags}</td>
                       <td>${article['createdAt']}</td>
                       </tr>
                     `;
@@ -129,6 +136,9 @@
                 <label for="content">간단한 내용</label>
                 <textarea id="content" class="form-control" rows="2"></textarea>
             </div>
+            <div class="form-group">
+                <input type="text" value="" id="tags" data-role="tagsinput" placeholder="tags" />
+            </div>
             <input id="content" class="form-control" placeholder="" hidden>
             <button type="button" class="btn btn-primary" onclick="postingArticle()">기사저장</button>
         </div>
@@ -139,12 +149,19 @@
             <th scope="col">#</th>
             <th scope="col">제목</th>
             <th scope="col">댓글수</th>
+            <th scope="col">태그</th>
             <th scope="col">등록일자</th>
         </tr>
         </thead>
         <tbody id="list-post">
         </tbody>
     </table>
+    <div class="input-group mb-3" style="width: 20%;margin: 0% 30%;">
+        <input type="text" class="form-control" placeholder="태그" aria-label="태그" aria-describedby="basic-addon2" id="searchTag">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" onclick="getArticles()">검색</button>
+        </div>
+    </div>
 </div>
 
 </body>

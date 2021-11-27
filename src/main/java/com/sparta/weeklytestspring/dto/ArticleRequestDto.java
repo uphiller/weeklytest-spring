@@ -8,4 +8,5 @@ import lombok.Setter;
 public class ArticleRequestDto {
     private String title;
     private String content;
+    private String tags;
 }

@@ -32,8 +32,4 @@ public class Tag extends Timestamped {
         this.article = article;
     }
 
-    public Tag(String name) {
-        this.name = name;
-    }
-
 }

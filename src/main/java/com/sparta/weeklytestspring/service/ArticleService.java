@@ -8,14 +8,18 @@ import com.sparta.weeklytestspring.dto.ArticleRequestDto;
 import com.sparta.weeklytestspring.repository.ArticleRepository;
 import com.sparta.weeklytestspring.repository.CommentRepository;
 import com.sparta.weeklytestspring.repository.TagRepository;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.Store;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @RequiredArgsConstructor
 @Service
@@ -24,11 +28,13 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final CommentRepository commentRepository;
     private final TagRepository tagRepository;
+    private final AwsService awsService;
 
     @Transactional
-    public Article setArticle(ArticleRequestDto articleRequestDto){
-
-        Article article = new Article(articleRequestDto);
+    public Article setArticle(ArticleRequestDto articleRequestDto) throws IOException {
+        String url = null;
+        if(articleRequestDto.getImage() != null) url = awsService.upload(articleRequestDto.getImage());
+        Article article = new Article(articleRequestDto, url);
         articleRepository.save(article);
 
         List<String> items = Arrays.asList(articleRequestDto.getTags().split("\\s*,\\s*"));
@@ -60,4 +66,5 @@ public class ArticleService {
         Comment comment = new Comment(articleCommentRequestDto, article);
         commentRepository.save(comment);
     }
+
 }

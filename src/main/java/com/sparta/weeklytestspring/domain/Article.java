@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,7 +17,7 @@ import java.util.List;
 @Entity
 public class Article extends Timestamped {
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long idx;
 
@@ -26,13 +27,21 @@ public class Article extends Timestamped {
     @Column(nullable = false)
     private String content;
 
+    @Column(nullable = true)
+    private String imageUrl;
+
     @OneToMany(mappedBy="article")
     private List<Comment> comments;
 
     @OneToMany(mappedBy="article")
-    private List<Tag> tags;
+    private Set<Tag> tags;
 
-    // 관심 상품 생성 시 이용합니다.
+    public Article(ArticleRequestDto requestDto, String imageUrl) {
+        this.title = requestDto.getTitle();
+        this.content = requestDto.getContent();
+        this.imageUrl = imageUrl;
+    }
+
     public Article(ArticleRequestDto requestDto) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();

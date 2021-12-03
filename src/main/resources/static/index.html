@@ -64,17 +64,18 @@
         }
 
         function postingArticle() {
-            let article = {
-                "title": $("#title").val(),
-                "content": $("#content").val(),
-                "tags": $("#tags").val()
-            }
+            var data = new FormData();
+            data.append( "title", $("#title").val() );
+            data.append( "content", $("#content").val() );
+            data.append( "tags", $("#tags").val() );
+            data.append( "image", $("#image")[0].files[0] );
 
             $.ajax({
                 type: "POST",
                 url: "/article",
-                contentType: 'application/json; charset=utf-8',
-                data: JSON.stringify(article),
+                processData: false,
+                contentType: false,
+                data: data,
                 success: function (response) {
                     alert("포스팅 업데이트 성공!");
                     window.location.reload();
@@ -107,7 +108,7 @@
 
             let tempHtml = ` <tr>
                       <th scope="row">${index}</th>
-                      <td><a href="/view?idx=${article['idx']}">${article['title']}</td>
+                      <td><a href="view.html?idx=${article['idx']}">${article['title']}</td>
                       <td>${article['comments'].length}</td>
                       <td>${tags}</td>
                       <td>${article['createdAt']}</td>
@@ -139,7 +140,7 @@
             <div class="form-group">
                 <input type="text" value="" id="tags" data-role="tagsinput" placeholder="tags" />
             </div>
-            <input id="content" class="form-control" placeholder="" hidden>
+            <input type="file" id="image" name="image">
             <button type="button" class="btn btn-primary" onclick="postingArticle()">기사저장</button>
         </div>
     </div>

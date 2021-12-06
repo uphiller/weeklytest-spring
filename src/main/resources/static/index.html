@@ -69,6 +69,7 @@
             data.append( "content", $("#content").val() );
             data.append( "tags", $("#tags").val() );
             data.append( "image", $("#image")[0].files[0] );
+            if( typeof $("#image")[0].files[0] != 'undefined') data.append( "image", $("#image")[0].files[0] );
 
             $.ajax({
                 type: "POST",

@@ -65,11 +65,11 @@
 
         function postingArticle() {
             var data = new FormData();
-            data.append( "title", $("#title").val() );
-            data.append( "content", $("#content").val() );
-            data.append( "tags", $("#tags").val() );
-            data.append( "image", $("#image")[0].files[0] );
-            if( typeof $("#image")[0].files[0] != 'undefined') data.append( "image", $("#image")[0].files[0] );
+            data.append("title", $("#title").val());
+            data.append("content", $("#content").val());
+            data.append("tags", $("#tags").val());
+            data.append("image", $("#image")[0].files[0]);
+            if (typeof $("#image")[0].files[0] != 'undefined') data.append("image", $("#image")[0].files[0]);
 
             $.ajax({
                 type: "POST",
@@ -102,9 +102,9 @@
 
         function makeListPost(article, index) {
             let tags = '';
-            for(let i = 0 ;  i < article['tags'].length ; i++){
+            for (let i = 0; i < article['tags'].length; i++) {
                 console.log(article['tags'][i]);
-                tags += " #"+ article['tags'][i]['name'];
+                tags += " #" + article['tags'][i]['name'];
             }
 
             let tempHtml = ` <tr>
@@ -117,6 +117,104 @@
                     `;
             $("#list-post").append(tempHtml);
         }
+
+        function openLoginForm() {
+            if ($("#login-box").css("display") == "block") {
+                $("#login-box").hide();
+                $("#post-box").hide();
+                $("#user-box").hide();
+            } else {
+                $("#post-url").val('');
+                $("#post-comment").val('');
+                $("#post-box").hide();
+                $("#user-box").hide();
+                $("#login-box").show();
+                $("#btn-post-box").text("포스팅 박스 열기");
+            }
+        }
+
+        function openUserForm() {
+            if ($("#user-box").css("display") == "block") {
+                $("#login-box").hide();
+                $("#post-box").hide();
+                $("#user-box").hide();
+            } else {
+                $("#post-url").val('');
+                $("#post-comment").val('');
+                $("#post-box").hide();
+                $("#login-box").hide();
+                $("#user-box").show();
+                $("#form-title").text("회원가입")
+                $("#btn-post-box").text("포스팅 박스 열기");
+            }
+        }
+
+        function login() {
+            let username = $("#login-id").val()
+            let password = $("#login-pw").val()
+
+            if (username === "") {
+                alert("아이디를 입력해주세요")
+                return;
+            } else {
+                $("#login-id").text("")
+            }
+
+            if (password === "") {
+                alert("비밀번호를 입력해주세요")
+                return;
+            } else {
+                $("#login-pw").text("")
+            }
+            let userInput = {
+                id: $('#login-id').val(),
+                pw: $('#login-pw').val()
+            }
+            $.ajax({
+                type: "POST",
+                url: "http://localhost:8080/login",
+                contentType: false,
+                processData: false,
+                data: userInput,
+                success: function (response) {
+                    alert("완료!");
+                    window.location.href = '../templates/reviews.html';
+                }
+            });
+        }
+
+        function createUser() {
+            if ($('#id') === "") {
+                alert("아이디를 입력해주세요")
+                return;
+            } else {
+                $("#id").text("")
+            }
+
+            if ($('#pw') === "") {
+                alert("비밀번호를 입력해주세요")
+                return;
+            } else {
+                $("#pw").text("")
+            }
+
+            let userInput = {
+                loginCheck: "signup",
+                id: $('#id').val(),
+                pw: $('#pw').val()
+            }
+            $.ajax({
+                type: "POST",
+                url: "http://localhost:8080/login",
+                contentType: false,
+                processData: false,
+                data: userInput,
+                success: function (response) {
+                    alert("완료!");
+                    window.location.href = '../templates/reviews.html';
+                }
+            });
+        }
     </script>
 </head>
 <body>
@@ -125,7 +223,11 @@
         <h1 class="display-4">질문합시다!!</h1>
         <hr class="my-4">
         <p class="lead">
-            <button onclick="openClose()" id="btn-post-box" type="button" class="btn btn-primary">포스팅 박스 열기</button>
+            <span>
+                <button onclick="openClose()" id="btn-post-box" type="button" class="btn btn-primary">포스팅 박스 열기</button>
+                <button type="button" class="btn btn-secondary" onclick="openLoginForm()">로그인</button>
+                <button type="button" class="btn btn-success" onclick="openUserForm()">회원가입</button>
+            </span>
         </p>
     </div>
     <div id="post-box" class="form-post" style="display:none">
@@ -139,12 +241,48 @@
                 <textarea id="content" class="form-control" rows="2"></textarea>
             </div>
             <div class="form-group">
-                <input type="text" value="" id="tags" data-role="tagsinput" placeholder="tags" />
+                <input type="text" value="" id="tags" data-role="tagsinput" placeholder="tags"/>
             </div>
             <input type="file" id="image" name="image">
             <button type="button" class="btn btn-primary" onclick="postingArticle()">기사저장</button>
         </div>
     </div>
+
+    <form id="login-box" style="display:none">
+        <div class="form-group">
+            <div id="form-title">로그인</div>
+            <label>아이디</label>
+            <input type="email" class="form-control" id="login-id" aria-describedby="emailHelp"
+                   placeholder="Enter email">
+        </div>
+        <div class="form-group">
+            <label>패스워드</label>
+            <input type="password" class="form-control" id="login-pw" placeholder="Password">
+        </div>
+        <span>
+            <button type="submit" class="btn btn-primary">Close</button>
+             <button onclick="login()" type="button" class="btn btn-primary">로그인</button>
+        </span>
+    </form>
+
+    <form id="user-box" style="display:none">
+        <div class="form-group">
+            <div id="user-box-form-title">회원가입</div>
+            <label for="exampleInputEmail1">아이디</label>
+            <input type="email" class="form-control" id="id" aria-describedby="emailHelp"
+                   placeholder="Enter email">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1">패스워드</label>
+            <input type="password" class="form-control" id="pw" placeholder="Password">
+        </div>
+        <span>
+            <button type="submit" class="btn btn-primary">Close</button>
+             <button onclick="createUser()" type="button" class="btn btn-primary">회원가입</button>
+        </span>
+    </form>
+
+
     <table class="table">
         <thead>
         <tr>
@@ -159,7 +297,8 @@
         </tbody>
     </table>
     <div class="input-group mb-3" style="width: 20%;margin: 0% 30%;">
-        <input type="text" class="form-control" placeholder="태그" aria-label="태그" aria-describedby="basic-addon2" id="searchTag">
+        <input type="text" class="form-control" placeholder="태그" aria-label="태그" aria-describedby="basic-addon2"
+               id="searchTag">
         <div class="input-group-append">
             <button class="btn btn-outline-secondary" type="button" onclick="getArticles()">검색</button>
         </div>

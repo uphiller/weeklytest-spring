@@ -26,6 +26,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
     <link rel="stylesheet" href="bootstrap-tagsinput.css">
     <script src="bootstrap-tagsinput.js"></script>
+    <script src="common.js"></script>
 
     <title>내배캠 | 타임어택</title>
     <style type="text/css">
@@ -49,6 +50,7 @@
     <script>
         $(document).ready(function () {
             getArticles();
+            check();
         });
 
         function openClose() {
@@ -64,11 +66,12 @@
         }
 
         function postingArticle() {
+
+            if(!checkLogin()) return false;
             var data = new FormData();
             data.append( "title", $("#title").val() );
             data.append( "content", $("#content").val() );
             data.append( "tags", $("#tags").val() );
-            data.append( "image", $("#image")[0].files[0] );
             if( typeof $("#image")[0].files[0] != 'undefined') data.append( "image", $("#image")[0].files[0] );
 
             $.ajax({
@@ -110,12 +113,77 @@
             let tempHtml = ` <tr>
                       <th scope="row">${index}</th>
                       <td><a href="view.html?idx=${article['idx']}">${article['title']}</td>
+                      <td>${article['user'].username}</td>
                       <td>${article['comments'].length}</td>
                       <td>${tags}</td>
                       <td>${article['createdAt']}</td>
                       </tr>
                     `;
             $("#list-post").append(tempHtml);
+        }
+
+        function openCloseLogin() {
+            $('#login-id').val('');
+            $('#login-pwd').val('');
+            $('#loginModal').modal('show');
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            $('#btn-login').show();
+            $('#btn-logout').hide();
+            $('#btn-join').show();
+        }
+
+        function openCloseJoin() {
+            $('#joinModal').modal('show');
+        }
+
+        function join() {
+            let info = {
+                username: $("#join-id").val(),
+                password: $("#join-pwd").val()
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/signup",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(info),
+                success: function (response) {
+                    alert("로그인 해주세요!!");
+                    $('#joinModal').modal('hide');
+                }
+            })
+        }
+
+        function login() {
+
+            let info = {
+                username: $("#login-id").val(),
+                password: $("#login-pwd").val()
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/login",
+                data: JSON.stringify(info),
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    localStorage.setItem('token', response['token']);
+                    alert("로그인 되었습니다!!");
+                    $('#loginModal').modal('hide');
+                    check();
+                }
+            })
+        }
+
+        function check() {
+            if (localStorage.getItem('token')) {
+                $('#btn-login').hide();
+                $('#btn-logout').show();
+                $('#btn-join').hide();
+            }
         }
     </script>
 </head>
@@ -126,6 +194,9 @@
         <hr class="my-4">
         <p class="lead">
             <button onclick="openClose()" id="btn-post-box" type="button" class="btn btn-primary">포스팅 박스 열기</button>
+            <button onclick="openCloseLogin()" id="btn-login" type="button" class="btn btn-secondary">로그인</button>
+            <button onclick="logout()" id="btn-logout" type="button" class="btn btn-danger" style="display:none">로그아웃</button>
+            <button onclick="openCloseJoin()" id="btn-join" type="button" class="btn btn-success">회원가입</button>
         </p>
     </div>
     <div id="post-box" class="form-post" style="display:none">
@@ -150,6 +221,7 @@
         <tr>
             <th scope="col">#</th>
             <th scope="col">제목</th>
+            <th scope="col">글쓴이</th>
             <th scope="col">댓글수</th>
             <th scope="col">태그</th>
             <th scope="col">등록일자</th>
@@ -162,6 +234,65 @@
         <input type="text" class="form-control" placeholder="태그" aria-label="태그" aria-describedby="basic-addon2" id="searchTag">
         <div class="input-group-append">
             <button class="btn btn-outline-secondary" type="button" onclick="getArticles()">검색</button>
+        </div>
+    </div>
+</div>
+<!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">로그인</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="login-id" class="col-form-label">아이디</label>
+                        <input type="text" class="form-control" id="login-id">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-pwd" class="col-form-label">패스워드</label>
+                        <input type="password" class="form-control" id="login-pwd">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="login()">로그인</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Join Modal -->
+<div class="modal fade" id="joinModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">회원가입</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="join-id" class="col-form-label">아이디</label>
+                        <input type="text" class="form-control" id="join-id">
+                    </div>
+                    <div class="form-group">
+                        <label for="join-pwd" class="col-form-label">패스워드</label>
+                        <input type="password" class="form-control" id="join-pwd">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="join()">회원가입</button>
+            </div>
         </div>
     </div>
 </div>

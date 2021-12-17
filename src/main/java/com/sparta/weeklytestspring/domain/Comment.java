@@ -2,7 +2,6 @@ package com.sparta.weeklytestspring.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sparta.weeklytestspring.dto.ArticleCommentRequestDto;
-import com.sparta.weeklytestspring.dto.ArticleRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,7 +21,6 @@ public class Comment extends Timestamped {
     @Column(nullable = false)
     private String comment;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name="article_idx", nullable = false)
     private Article article;

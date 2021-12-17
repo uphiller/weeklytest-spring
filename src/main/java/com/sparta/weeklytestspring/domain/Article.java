@@ -1,6 +1,6 @@
 package com.sparta.weeklytestspring.domain;
 
-import com.sparta.weeklytestspring.dto.ArticleRequestDto;
+import com.sparta.weeklytestspring.dto.SetArticleDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,14 +36,14 @@ public class Article extends Timestamped {
     @OneToMany(mappedBy="article")
     private Set<Tag> tags;
 
-    public Article(ArticleRequestDto requestDto, String imageUrl) {
+    @ManyToOne
+    @JoinColumn(name="user_idx", nullable = false)
+    private User user;
+
+    public Article(SetArticleDto.Request requestDto, String imageUrl, User user) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
         this.imageUrl = imageUrl;
-    }
-
-    public Article(ArticleRequestDto requestDto) {
-        this.title = requestDto.getTitle();
-        this.content = requestDto.getContent();
+        this.user = user;
     }
 }

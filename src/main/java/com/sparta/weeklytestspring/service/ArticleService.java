@@ -3,17 +3,15 @@ package com.sparta.weeklytestspring.service;
 import com.sparta.weeklytestspring.domain.Article;
 import com.sparta.weeklytestspring.domain.Comment;
 import com.sparta.weeklytestspring.domain.Tag;
+import com.sparta.weeklytestspring.domain.User;
 import com.sparta.weeklytestspring.dto.ArticleCommentRequestDto;
-import com.sparta.weeklytestspring.dto.ArticleRequestDto;
+import com.sparta.weeklytestspring.dto.SetArticleDto;
 import com.sparta.weeklytestspring.repository.ArticleRepository;
 import com.sparta.weeklytestspring.repository.CommentRepository;
 import com.sparta.weeklytestspring.repository.TagRepository;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.Store;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,10 +29,10 @@ public class ArticleService {
     private final AwsService awsService;
 
     @Transactional
-    public Article setArticle(ArticleRequestDto articleRequestDto) throws IOException {
+    public Article setArticle(SetArticleDto.Request articleRequestDto, User user) throws IOException {
         String url = null;
         if(articleRequestDto.getImage() != null) url = awsService.upload(articleRequestDto.getImage());
-        Article article = new Article(articleRequestDto, url);
+        Article article = new Article(articleRequestDto, url, user);
         articleRepository.save(article);
 
         List<String> items = Arrays.asList(articleRequestDto.getTags().split("\\s*,\\s*"));

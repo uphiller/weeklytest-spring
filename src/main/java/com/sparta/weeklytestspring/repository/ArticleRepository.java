@@ -8,11 +8,11 @@ import java.util.List;
 
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
-    @EntityGraph(attributePaths = {"comments","tags"})
+    @EntityGraph(attributePaths = {"comments","tags","user"})
     List<Article> findAllByTagsName(String name);
     List<Article> findAllByTitleOrContent(String title, String content);
 
-    @EntityGraph(attributePaths = {"comments","tags"})
+    @EntityGraph(attributePaths = {"comments","tags","user"})
     @Override
     List<Article> findAll();
 }

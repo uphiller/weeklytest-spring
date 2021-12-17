@@ -8,18 +8,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-
 
 @RequiredArgsConstructor
 @RestController
 public class UserApiController {
 
+    private final JwtTokenUtil jwtTokenUtil;
+    private final UserDetailsService userDetailsService;
     private final UserService userService;
-    private UserDetailsService userDetailsService;
-    private JwtTokenUtil jwtTokenUtil;
 
     // 회원가입, 로그인 하나의 API 에서 처리
     @PostMapping("/login")

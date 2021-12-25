@@ -10,6 +10,8 @@ import com.sparta.weeklytestspring.repository.ArticleRepository;
 import com.sparta.weeklytestspring.repository.CommentRepository;
 import com.sparta.weeklytestspring.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,11 +50,11 @@ public class ArticleService {
         );
     }
 
-    public List<Article> getArticles(String searchTag){
+    public Page<Article> getArticles(String searchTag, Pageable pageable){
         if(searchTag.isEmpty()){
-            return articleRepository.findAll();
+            return articleRepository.findAll(pageable);
         } else {
-            return articleRepository.findAllByTagsName(searchTag);
+            return articleRepository.findAllByTagsName(searchTag, pageable);
         }
     }
 

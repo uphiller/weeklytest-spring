@@ -49,8 +49,11 @@
     </style>
     <script>
         $(document).ready(function () {
-            getArticles();
+            getArticles(0);
             check();
+            $("#perPagingSelect").change(function () {
+                getArticles(0);
+            })
         });
 
         function openClose() {
@@ -87,18 +90,21 @@
             })
         }
 
-        function getArticles() {
+        function getArticles(curPage) {
             let tag = $("#searchTag").val();
+            let pageSize = $("#perPagingSelect").val();
             $.ajax({
                 type: "GET",
-                url: `/articles?searchTag=${tag}`,
+                url: `/articles?searchTag=${tag}&size=${pageSize}&page=${curPage}`,
                 contentType: 'application/json; charset=utf-8',
                 success: function (response) {
                     $("#list-post").empty();
-                    for (let i = 0; i < response.length; i++) {
-                        num = response.length - i;
-                        makeListPost(response[i], num);
+                    for (let i = 0; i < response['content'].length; i++) {
+                        let num = response["totalElements"] - (pageSize * curPage) - i
+                        makeListPost(response['content'][i], num);
                     }
+
+                    makePaging(response);
                 }
             })
         }
@@ -106,7 +112,6 @@
         function makeListPost(article, index) {
             let tags = '';
             for(let i = 0 ;  i < article['tags'].length ; i++){
-                console.log(article['tags'][i]);
                 tags += " #"+ article['tags'][i]['name'];
             }
 
@@ -185,6 +190,18 @@
                 $('#btn-join').hide();
             }
         }
+
+        function makePaging(pagingInfo) {
+            let tempHtml = '';
+            for (let i = 0; i < pagingInfo['totalPages']; i++) {
+                if (i == pagingInfo['pageable'].pageNumber) {
+                    tempHtml += `<li class="page-item active"><a class="page-link" href="#">${i + 1}</a></li>`;
+                } else {
+                    tempHtml += `<li class="page-item"><a class="page-link" href="#" onclick="getArticles(${i})">${i + 1}</a></li>`;
+                }
+            }
+            $("#pagination").html(tempHtml);
+        }
     </script>
 </head>
 <body>
@@ -216,6 +233,13 @@
             <button type="button" class="btn btn-primary" onclick="postingArticle()">기사저장</button>
         </div>
     </div>
+    <div class="input-group mb-3" style="width: 10%;margin: 0% 90%;">
+        <select class="custom-select" id="perPagingSelect">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+        </select>
+    </div>
     <table class="table">
         <thead>
         <tr>
@@ -230,12 +254,17 @@
         <tbody id="list-post">
         </tbody>
     </table>
-    <div class="input-group mb-3" style="width: 20%;margin: 0% 30%;">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination" style="justify-content: center; " id="pagination">
+        </ul>
+    </nav>
+    <div class="input-group mb-3" style="width: 40%;margin: 0% 30%;">
         <input type="text" class="form-control" placeholder="태그" aria-label="태그" aria-describedby="basic-addon2" id="searchTag">
         <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button" onclick="getArticles()">검색</button>
+            <button class="btn btn-outline-secondary" type="button" onclick="getArticles(0)">검색</button>
         </div>
     </div>
+
 </div>
 <!-- Login Modal -->
 <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
